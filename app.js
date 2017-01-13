@@ -3,6 +3,7 @@ var app = express();
 var path = require('path');
 var formidable = require('formidable');
 var fs = require('fs');
+var cors = require('cors');
 var io = require('socket.io').listen(server, {
   log: false,
   origins: '*:*'
@@ -11,15 +12,15 @@ var uuid = require('node-uuid');
 var sys = require('sys'),
   exec = require('child_process').exec;
 
-var uuid1 = '';
+var uuid1 = uuid.v1();
+
+app.use(cors());
 
 app.get('/', function(req, res) {;
   res.send("API");
 });
 
 app.post('/upload', function(req, res) {
-
-  var uuid1 = uuid.v1();
 
   // create an incoming form object
   var form = new formidable.IncomingForm();
@@ -71,8 +72,8 @@ app.get('/check_plate', function(req, res) {
 
     // alpr DSC03145.jpg -c pt -p pt -n 40
     //now that we have a picture saved, execute parse it with openalpr and return the results as json (the -j switch) 
-    exec('alpr -j ./captures/' + uuid1 + '.jpg -c pt -p -pt',
-      // exec('alpr -j ./captures/pjukRD0.jpg',
+   exec('alpr -j ./captures/' + uuid1 + '.jpg -c br -p -br',
+       // exec('alpr -j ./captures/Abre.jpg -c pt -pt pt',
       function(error, stdout, stderr) {
         //create a json object based on the alpr output
         var plateOutput = JSON.parse(stdout.toString());
@@ -99,6 +100,7 @@ app.get('/check_plate', function(req, res) {
       });
   } else {
     res.json("Nenhum arquivo para processar!");
+    console.log("nada");
   }
 });
 
